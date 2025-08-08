@@ -54,8 +54,12 @@ DECODE_HEADERS = {
 
 async def upload_file(session, file):
     form = aiohttp.FormData()
-    form.add_field("Filedata", file.file, filename=file.filename,
+    # 读取SpooledTemporaryFile内容 / Read file content from SpooledTemporaryFile
+    file_content = await file.read()
+    form.add_field("Filedata", file_content, filename=file.filename,
                    content_type=file.content_type or "image/jpeg")
+    # 重置文件指针以便重用 / Reset file pointer for potential reuse
+    await file.seek(0)
     async with session.post(UPLOAD_URL, data=form,
                             headers=UPLOAD_HEADERS) as r:
         raw = await r.text()
