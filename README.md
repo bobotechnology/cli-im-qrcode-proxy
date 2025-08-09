@@ -41,7 +41,7 @@ curl -X POST -F "file=@qrcode.jpg" http://localhost:8000/decode_qrcode/
 
 1. Install dependencies:
 ```bash
-pip install fastapi uvicorn aiohttp
+pip install fastapi uvicorn aiohttp python-multipart
 ```
 
 2. Run the service:
@@ -55,4 +55,4 @@ The service will be available at `http://localhost:8000`
 bobo
 
 ## Version
-v1.0
+v1.1

@@ -20,7 +20,7 @@ Error Handling:
 - 502: Third-party API returned invalid data
 
 Author: bobo
-Version: v1.0
+Version: v1.1
 """
 
 from fastapi import FastAPI, File, UploadFile, HTTPException
