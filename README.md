@@ -46,7 +46,7 @@ pip install fastapi uvicorn aiohttp python-multipart
 
 2. Run the service:
 ```bash
-python request.py
+python app.py
 ```
 
 The service will be available at `http://localhost:8000`
