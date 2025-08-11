@@ -23,6 +23,9 @@ Author: bobo
 Version: v1.1
 """
 
+import colorama
+colorama.init()
+
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import JSONResponse
 import aiohttp
