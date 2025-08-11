@@ -69,23 +69,31 @@ async def upload_file(session, file):
         try:
             data = json.loads(raw)
         except json.JSONDecodeError:
-            raise HTTPException(502, f"Upload API returned non-JSON: {raw[:200]}")
+            raise HTTPException(502, f"Upload API returned non-JSON: {{raw[:200]}}")
     if str(data.get("status")) != "1":
         raise HTTPException(400, data.get("info", "Upload failed"))
+    if not data.get("data") or not data["data"].get("path"):
+        raise HTTPException(502, "Invalid upload API response structure")
     return data["data"]["path"]
 
 async def decode_qrcode(session, oss_path):
     payload = {"remove_background": "1", "image_path": oss_path}
-    async with session.post(DECODE_URL, headers=DECODE_HEADERS,
-                            data=payload) as r:
-        raw = await r.text()
-        try:
-            data = json.loads(raw)
-        except json.JSONDecodeError:
-            raise HTTPException(502, f"Decode API returned non-JSON: {raw[:200]}")
-    if data.get("status") != 1:
-        raise HTTPException(400, data.get("message", "Decode failed"))
-    return data["data"]["qrcode_content"]
+    try:
+        async with session.post(DECODE_URL, headers=DECODE_HEADERS,
+                              data=payload) as r:
+            raw = await r.text()
+            try:
+                data = json.loads(raw)
+            except json.JSONDecodeError:
+                raise HTTPException(502, f"Decode API returned non-JSON: {{raw[:200]}}")
+            
+            if data.get("status") != 1:
+                raise HTTPException(400, data.get("message", "Decode failed"))
+            if not data.get("data") or not data["data"].get("qrcode_content"):
+                raise HTTPException(502, "Invalid decode API response structure")
+            return data["data"]["qrcode_content"]
+    except aiohttp.ClientError as e:
+        raise HTTPException(504, f"Network error: {str(e)}")
 
 @app.post("/decode_qrcode/")
 async def decode_endpoint(file: UploadFile = File(...)):

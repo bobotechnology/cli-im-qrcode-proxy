@@ -28,7 +28,7 @@ A FastAPI-based proxy service for Caoliao QR code recognition API.
 
 ## Example Request
 
-```bash
+```
 curl -X POST -F "file=@qrcode.jpg" http://localhost:8000/decode_qrcode/
 ```
 
@@ -40,16 +40,38 @@ curl -X POST -F "file=@qrcode.jpg" http://localhost:8000/decode_qrcode/
 ## How to Run
 
 1. Install dependencies:
-```bash
+```
 pip install fastapi uvicorn aiohttp python-multipart
 ```
 
 2. Run the service:
-```bash
+```
 python app.py
 ```
 
 The service will be available at `http://localhost:8000`
+
+## Testing
+
+### Test Environment Setup
+```
+pip install pytest requests pillow qrcode[pil]
+```
+
+### Running Tests
+1. First start the service:
+```
+python app.py
+```
+
+2. In a new terminal, run API tests:
+```
+python -m unittest test.test
+```
+
+### Expected Results
+- Valid QR code: Returns 200 status with `content` field
+- Invalid file: Returns 400 status with `error` field
 
 ## Author
 bobo
