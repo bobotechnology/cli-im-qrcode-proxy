@@ -1,80 +1,103 @@
 # QR Code Recognition API Proxy
 
-A FastAPI-based proxy service for Caoliao QR code recognition API.
+代理草料二维码识别服务，提供本地 REST API 接口。
 
-## Features
+## 功能
 
-- Proxy service for Caoliao QR code recognition
-- Supports image file upload and QR code content decoding
-- Automatic API request handling and response transformation
+- 代理草料二维码识别 API
+- 支持图片文件上传与二维码内容解码
+- 自动处理请求和响应转换
 
-## API Specification
+## API 接口
 
 ### POST /decode_qrcode/
 
-**Parameters:**
-- `file`: Image file in multipart/form-data format
+**参数：**
+- `file`：multipart/form-data 格式的图片文件
 
-**Success Response:**
+**成功响应 (200)：**
 ```json
 {
-    "content": "decoded QR code content"
+    "content": "二维码内容"
 }
 ```
 
-**Error Responses:**
-- 400: Upload/Decode failure
-- 502: Third-party API returned invalid data
+**错误响应：**
+- `400`：上传或解码失败
+- `502`：第三方接口返回异常数据
+- `504`：网络错误
 
-## Example Request
-
-```
+**示例请求：**
+```bash
 curl -X POST -F "file=@qrcode.jpg" http://localhost:8000/decode_qrcode/
 ```
 
-## Error Handling
+## 运行
 
-- `400 Bad Request`: Upload or decode failure
-- `502 Bad Gateway`: Third-party API returned invalid data
+### 安装依赖
 
-## How to Run
-
-1. Install dependencies:
 ```
-pip install fastapi uvicorn aiohttp python-multipart
+pip install fastapi uvicorn aiohttp python-multipart qrcode[pil]
 ```
 
-2. Run the service:
+### 启动服务
+
 ```
 python app.py
 ```
 
-The service will be available at `http://localhost:8000`
+服务地址：`http://localhost:8000`
 
-## Testing
+## 测试
 
-### Test Environment Setup
+### 单元测试（无需联网）
+
+使用 mock 隔离外部依赖，无需启动服务即可运行。
+
 ```
-pip install pytest requests pillow qrcode[pil]
+pip install pytest qrcode[pil]
+python -m unittest test.test.QRCodeAPITest -v
 ```
 
-### Running Tests
-1. First start the service:
-```
+### 集成测试（需联网 + 已启动服务）
+
+真实调用 cli.im 接口，验证完整链路。
+
+```bash
+# 终端1：启动服务
 python app.py
+
+# 终端2：运行集成测试
+$env:INTEGRATION_TEST="1"; python -m unittest test.test.QRCodeIntegrationTest -v
 ```
 
-2. In a new terminal, run API tests:
+不设置 `INTEGRATION_TEST` 环境变量时自动跳过。
+
+### 全部测试
+
 ```
-python -m unittest test.test
+python -m unittest test.test -v
 ```
 
-### Expected Results
-- Valid QR code: Returns 200 status with `content` field
-- Invalid file: Returns 400 status with `error` field
+### 测试用例
 
-## Author
+**单元测试 (QRCodeAPITest)**
+
+| 用例 | 说明 |
+|------|------|
+| test_valid_qrcode_decoding | 正常二维码解码 |
+| test_upload_failure | 上传失败返回 400 |
+| test_decode_api_returns_invalid_json | 识别接口返回非 JSON |
+
+**集成测试 (QRCodeIntegrationTest)**
+
+| 用例 | 说明 |
+|------|------|
+| test_real_qrcode_decode | 真实二维码联网识别 |
+| test_real_invalid_file | 真实无效文件上传 |
+
+## 作者
 bobo
 
-## Version
-v1.1
+## 版本
+v1.3
